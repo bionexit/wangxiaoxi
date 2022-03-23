@@ -1,0 +1,41 @@
+{
+    "subject_information": {
+        "basic_information _subject": {
+            "general_information_subject _subject": {
+                "subject_type": 1, //主体对象类型
+                "subject_main_administrative_region": 1, //主体行政区域
+                "subject_create_time": "yyyy-MM-dd'T'HH:mm:ssX" //主体信息维护时间
+            },
+            "subject_qualification_information": //主体资质信息(对象集合)  
+            [
+                {
+                    "qualification_information": {
+                        "subject_qualification_category": 1, //资质类别NUMBER
+                        "subject_market_roles_type": 5 //市场角色类型NUMBER
+                    }
+                },
+                {
+                    "qualification_information": {
+                        "subject_qualification_category": 1, //资质类别NUMBER
+                        "subject_market_roles_type": 5 //市场角色类型NUMBER
+                    }
+                }
+            ]
+        },
+        "organization_subject_information": { //机构主体信息(对象)
+            "basic_information_of_enterprise": { //机构基本信息(对象)
+                "basic_information_description": { //基本信息描述(对象)
+                    "subject_company_name": "天津滨海柜台交易市场股份公司", //公司全称CHARACTER256**必填**
+                    "subject_document_information": [
+                        {
+                            "type": 1,
+                            "code": "911201165594701429"
+                        }
+                    ]//证件类型及证件号码OBJET_SET**必填**
+                    
+                }
+            }
+               
+        }
+    }
+}

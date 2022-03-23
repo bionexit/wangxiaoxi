@@ -1,0 +1,90 @@
+
+import aiohttp
+import asyncio
+import json
+from logger import Logger
+
+async def main(start,end):
+    logger = Logger('ASYNCIO TASKS')
+    async with aiohttp.ClientSession() as session:
+        global Output
+        Output = []
+        tasks = []
+        url = 'http://192.168.1.11:8080/block-query'
+        for i in range (start,end):
+            REQ = {
+                "conf":{
+                    "verf":"6cfd00cefa7c3e56916abf2192aa5c6b77e84bc4a98816f417577b845d46cea1"
+                    },
+                "body":
+                    {
+                        "blockNumber":i
+                    }
+            }
+        
+            # logger.get_log().info('Tasks loaded from %d to %d' % (start,end))
+            data_post = json.dumps(REQ)
+            tasks.append(asyncio.ensure_future(fetch_url(url,session,i,data_post)))
+        # tasks = [tasks.append(fetch_url('http://192.168.1.11:8080/block-query',session,i,data_post)) for i in range (start,end)]
+        logger.get_log().info('Tasks loaded from height %d to %d. Total count %d' % (start,end,len(tasks)))
+        await asyncio.wait(tasks)
+    
+
+async def fetch_url(url,session,id,data_post):
+    logger = Logger('BLC REQUEST')
+    headers = {'Content-Type': 'application/json;charset=UTF-8'}
+    try:
+        async with session.post(url,data=data_post,headers=headers) as resp:
+            json_result = await resp.json()
+            try:
+                Output.append(data_validate(json_result,id))
+                logger.get_log().info(f'Task %s request data successfully analyized.' % id)
+            except Exception as e:
+                logger.get_log().error(f'Task %s request data failed to analyz{e.args}' % id)
+
+    except Exception as e:
+        logger.get_log().error(f'Task %s request Failed.{e.args}' % id)
+
+    
+
+def data_validate(result,id):
+    try:
+        result_dic = []
+        _block = id
+        _create_time = result['data']['createTime']
+        height = len(result['data']['txList'])
+        for ix in range(0,height):
+            core_result = result['data']['txList'][ix]['rwSet']['nsRwSets'][0]['kvRwSet']['writes'][0]['value']
+            
+            _result = {}
+            _result['block']=_block
+            _result['block_seq']=ix+1
+            _result['create_time']=_create_time
+            # print(core_result)
+            # print(result['data']['txList'][0]['rwSet']['nsRwSets'][0]['kvRwSet']['writes'][0])
+            deep  = json.loads(core_result)
+            # print(deep)
+
+            _schemaversion = deep['header']['model']['version']
+            _object_id = deep['header']['content']['object_id']
+            _type = deep['header']['content']['type']
+            _operation = deep['header']['content']['operation']
+            _version = deep['header']['content']['version']
+
+            _result['schemaversion']=_schemaversion
+
+            _result['type']=_type
+            _result['operation']=_operation
+            _result['object_id']=_object_id
+
+            _result['version']=_version
+            result_dic.append(_result)
+            # print(_result)
+
+        return _result
+    except Exception as e:
+        raise e
+    
+    
+asyncio.run(main(start = 1,end = 10))
+print(Output,len(Output))

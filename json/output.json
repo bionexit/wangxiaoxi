@@ -1,0 +1,62 @@
+{
+    "header": {
+        "model": {
+            "protocol": "区域性股权市场跨链业务数据模型",
+            "version": "2.5.2"
+        },
+        "content": {
+            "type": "transactionreport",
+            "object_id": "1d807c91026b5741fd6244aa3808545b",
+            "version": 0,
+            "operation": "create",
+            "timestamp": 1645171311357,
+            "remark": ""
+        },
+        "seal": [
+            {
+                "pub_key": {
+                    "type": "SM2",
+                    "value": "2f5dca5a19cbd95f4620c9fda6d2421b07b475edfe0320b47af37b077446678bfdcca11db53a04f35ee0ff436d5b882f2c53597787e00d37d429458faadac452 "
+                },
+                "signature": "......"
+            }
+        ],
+        "metadata": {}
+    },
+    "body": {
+        "transaction_report_information": {
+            "basic_transaction_information": {
+                "basic_information_remark": {
+                    "transaction_market_type": 255,
+                    "transaction_type": 8,
+                    "transaction_method": 2,
+                    "transaction_create_time": "2022-02-18T16:01:51+08:00"
+                },
+                "trading_asset_information": {
+                    "asset_custody_state": {
+                        "transaction_product_custody_status": 2
+                    },
+                    "no_custody_asset_transaction": {
+                        "transaction_product_issuer_ref": "a76ec822c39edc96993c00ef23d5cf34/5",
+                        "transaction_product_issuer_name": "方正汇智（天津）彩色印刷股份公司",
+                        "transaction_product_asset_type": 255
+                    }
+                }
+            },
+            "transaction_information": {
+                "transaction_content_information": {
+                    "transaction_settlement_currency": "156",
+                    "transaction_settlement_price": 1040000,
+                    "transaction_settlement_quantity": 1,
+                    "transaction_settlement_time": "2021-11-01T11:19:00+08:00"
+                },
+                "financing_transaction_party_information": {
+                    "transaction_issuer_ref": "a76ec822c39edc96993c00ef23d5cf34/5",
+                    "transaction_product_issuer_name": "方正汇智（天津）彩色印刷股份公司",
+                    "transaction_investor_ref": "d27b6a28816d379950353c3100d9155d/0",
+                    "transaction_investor_name": "天津农村商业银行股份有限公司河西支行"
+                }
+            }
+        }
+    }
+}

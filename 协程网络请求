@@ -1,0 +1,119 @@
+
+from asyncio import Task, futures
+from itertools import count
+from logging import exception
+from signal import raise_signal
+from unittest import async_case, result
+from urllib import response
+import aiohttp
+import asyncio
+from logger import Logger
+
+
+async def main(pool,start=1,end=2):
+    """main _summary_
+
+    _extended_summary_
+
+    Args:
+        pool (_type_): 线程池宽度，默认20
+        start (int, optional): 遍历区块起始高度，默认为1.
+        end (int, optional): 遍历区块终止高度，默认为2.
+    """
+    sem = asyncio.Semaphore(pool)
+    global SIMFD
+    SIMFD = []
+    async with aiohttp.ClientSession() as session:
+        # _results = await asyncio.gather(*[control_sem(sem,'http://192.168.1.11:8080/block-query',session,i) for i in range (0,k)],return_exceptions=True)
+        tasks = []
+        # [tasks.append(control_sem(sem,'http://192.168.1.11:8080/block-query',session,i)) for i in range (start,end)]
+        tasks.append(control_sem(sem,'http://192.168.1.11:8080/block-query',session,1))
+        tasks.append(control_sem(sem,'http://192.168.1.11:8080/block-query',session,5))
+        tasks.append(control_sem(sem,'http://192.168.1.11:8080/block-query',session,6))
+        print(tasks)
+        await asyncio.wait(tasks)
+        
+async def control_sem(sem,url,session,id):
+    try:
+        async with sem:
+            REQ = {
+                "conf":{
+                    "verf":"6cfd00cefa7c3e56916abf2192aa5c6b77e84bc4a98816f417577b845d46cea1"
+                    },
+                "body":
+                    {
+                        "blockNumber":id
+                    }
+            }
+            logger = Logger('QUERY_BLC2')
+            
+            fetch(url,session,REQ,id)
+    except Exception as e:
+        logger.get_log().error('Data in block %s error.' % e)
+        logger.shutdown()
+        # pass
+def fetch(url,session,_json,id):
+
+    import json
+    
+    logger = Logger('QUERY_BLC')
+    headers = {'Content-Type': 'application/json;charset=UTF-8'}
+    with session.post(url,data=json.dumps(_json),headers=headers) as resp:
+        try:
+        # print(result,id)
+            result = resp.json()
+            result_dic = []
+            _block = id
+
+            _create_time = result['data']['createTime']
+            height = len(result['data']['txList'])
+            for ix in range(0,height):
+                try:
+                    core_result = result['data']['txList'][ix]['rwSet']['nsRwSets'][0]['kvRwSet']['writes'][0]['value']
+                    
+                    _result = {}
+                    _result['block']=_block
+                    _result['block_seq']=ix+1
+                    _result['create_time']=_create_time
+                    # print(core_result)
+                    # print(result['data']['txList'][0]['rwSet']['nsRwSets'][0]['kvRwSet']['writes'][0])
+                    deep  = json.loads(core_result)
+                    # print(deep)
+
+                    _schemaversion = deep['header']['model']['version']
+                    _object_id = deep['header']['content']['object_id']
+                    _type = deep['header']['content']['type']
+                    _operation = deep['header']['content']['operation']
+                    _version = deep['header']['content']['version']
+
+                    _result['schemaversion']=_schemaversion
+
+                    _result['type']=_type
+                    _result['operation']=_operation
+                    _result['object_id']=_object_id
+
+                    _result['version']=_version
+                    result_dic.append(_result)
+                    print(_result)
+                    SIMFD.append(_result)
+                except Exception as e:
+                    logger.get_log().error(e)
+                    logger.shutdown()
+                    raise e
+        except Exception as e:
+            logger.get_log().error('Data in block error %s' % e)
+            
+            logger.shutdown()
+            raise e 
+            # loop = asyncio.get_running_loop()
+            # loop.set
+            # # asyncio.Future.cancel(futures)
+            # # logger.get_log().error('Data in block %s error' % e)
+            
+            # exit
+# loop = asyncio.get_event_loop()
+# loop.run_until_complete(main(pool=20,k=20))
+# loop.close()
+
+asyncio.run(main(pool = 20,start = 1,end = 2))
+print(SIMFD,len(SIMFD))
